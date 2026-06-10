@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识图谱 - AI 智能错题本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div style="margin-bottom:24px;">
+            <h1 style="font-size:24px;">🗺️ 知识图谱</h1>
+            <p style="color:var(--text-secondary);margin-top:4px;">你的错题知识点分布</p>
+        </div>
+
+        {% if tag_stats %}
+        <div class="card">
+            <div class="card-title" style="margin-bottom:16px;">🏷️ 知识点标签分布</div>
+            <div class="tag-cloud">
+                {% for ts in tag_stats %}
+                <a href="{{ url_for('error_book', tag=ts.name) }}" class="tag-item"
+                    style="font-size:{{ (ts.count / tag_stats[0].count * 10 + 14) | int }}px; padding:{{ (ts.count / tag_stats[0].count * 6 + 6) | int }}px {{ (ts.count / tag_stats[0].count * 10 + 14) | int }}px;">
+                    {{ ts.name }}
+                    <span class="count">{{ ts.count }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card" style="text-align:center;padding:60px;">
+            <div style="font-size:48px;margin-bottom:12px;">🗺️</div>
+            <p style="color:var(--text-secondary);">还没有知识点数据</p>
+            <p style="color:var(--text-secondary);font-size:13px;">添加错题时输入知识点标签，将自动汇聚到这里</p>
+            <a href="{{ url_for('add_error') }}" class="btn btn-primary" style="margin-top:16px;">添加错题</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+    document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('open');
+    });
+    </script>
+</body>
+</html>

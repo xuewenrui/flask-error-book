@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>答题中 - AI 智能错题本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container" style="max-width:700px;">
+        <!-- 顶栏 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:14px;color:var(--text-secondary);">
+                第 <strong>{{ current_index + 1 }}</strong> / {{ total }} 题
+            </div>
+            <span class="badge badge-primary">{{ question.subject }}</span>
+        </div>
+        <div class="progress-bar" style="margin-bottom:20px;">
+            <div class="fill" style="width:{{ (current_index + 1) / total * 100 }}%;"></div>
+        </div>
+
+        <!-- 题目卡片 -->
+        <div class="question-card" id="questionCard">
+            <div class="question-text">{{ question.question_text }}</div>
+
+            <div id="optionsArea">
+                {% if options %}
+                    {% for opt in options %}
+                    <button class="option-item" data-key="{{ opt.key }}"
+                        onclick="selectOption('{{ opt.key }}')"
+                        id="opt-{{ opt.key }}">
+                        <span class="option-key">{{ opt.key }}</span>{{ opt.text }}
+                    </button>
+                    {% endfor %}
+                {% else %}
+                    <p style="color:var(--text-secondary);text-align:center;padding:20px;">
+                        此题为开放题，请直接查看答案
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- 答案反馈区（初始隐藏） -->
+            <div id="feedbackArea" style="display:none;margin-top:20px;padding:16px;border-radius:8px;"></div>
+
+            <div class="practice-footer">
+                <button class="btn btn-outline btn-sm" onclick="showAnswer()"
+                    id="btnShow" style="visibility:{{ 'hidden' if not options else 'visible' }};">
+                    💡 显示答案
+                </button>
+                <span id="hintText" style="font-size:13px;color:var(--text-secondary);">
+                    {% if options %}请选择一个选项{% else %}点击"显示答案"查看正确答案{% endif %}
+                </span>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-primary btn-sm" id="btnNext" onclick="nextQuestion()" style="display:none;">
+                        下一题 →
+                    </button>
+                    <a href="{{ url_for('practice_result') }}" class="btn btn-success btn-sm" id="btnResult" style="display:none;">
+                        查看成绩
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const total = {{ total }};
+    const currentIndex = {{ current_index }};
+    const correctAnswer = "{{ question.correct_answer }}";
+    let answered = false;
+
+    function selectOption(key) {
+        if (answered) return;
+        answered = true;
+
+        // 高亮选中
+        document.querySelectorAll('.option-item').forEach(btn => {
+            btn.classList.add('disabled');
+            if (btn.dataset.key === correctAnswer) btn.classList.add('correct');
+            if (btn.dataset.key === key && key !== correctAnswer) btn.classList.add('wrong');
+            if (btn.dataset.key === key) btn.classList.add('selected');
+        });
+
+        // 提交答案
+        fetch('{{ url_for("submit_answer") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'answer=' + key
+        }).then(r => r.json()).then(data => {
+            const fb = document.getElementById('feedbackArea');
+            fb.style.display = 'block';
+            if (data.is_correct) {
+                fb.className = 'result-status correct';
+                fb.innerHTML = '✅ 回答正确！';
+            } else {
+                fb.className = 'result-status wrong';
+                fb.innerHTML = '❌ 回答错误！正确答案是 <strong>' + data.correct_answer + '</strong>';
+            }
+            updateButtons();
+        });
+
+        document.getElementById('hintText').textContent =
+            key === correctAnswer ? '✅ 回答正确！' : '❌ 回答错误';
+    }
+
+    function showAnswer() {
+        if (answered) return;
+        answered = true;
+
+        document.querySelectorAll('.option-item').forEach(btn => {
+            btn.classList.add('disabled');
+            if (btn.dataset.key === correctAnswer) btn.classList.add('correct');
+        });
+
+        const fb = document.getElementById('feedbackArea');
+        fb.style.display = 'block';
+        fb.className = 'result-status correct';
+        fb.innerHTML = '💡 正确答案是 <strong>' + correctAnswer + '</strong>';
+
+        document.getElementById('hintText').textContent = '已显示答案';
+        updateButtons();
+    }
+
+    function updateButtons() {
+        document.getElementById('btnShow').style.display = 'none';
+        document.getElementById('btnNext').style.display =
+            (currentIndex < total - 1) ? 'inline-flex' : 'none';
+        document.getElementById('btnResult').style.display =
+            (currentIndex >= total - 1) ? 'inline-flex' : 'none';
+    }
+
+    function nextQuestion() {
+        fetch('{{ url_for("next_question") }}', { method: 'POST' })
+            .then(() => location.reload());
+    }
+
+    // 初始状态
+    if (currentIndex >= total - 1) {
+        document.getElementById('btnResult').style.display = 'inline-flex';
+    }
+
+    document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('open');
+    });
+    </script>
+</body>
+</html>

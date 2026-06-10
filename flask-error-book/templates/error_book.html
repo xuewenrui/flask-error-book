@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的错题本 - AI 智能错题本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <div>
+                <h1 style="font-size:24px;">📖 我的错题本</h1>
+                <p style="color:var(--text-secondary);margin-top:4px;">共 {{ errors|length }} 道错题</p>
+            </div>
+            <a href="{{ url_for('add_error') }}" class="btn btn-primary btn-sm">+ 添加错题</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- 筛选栏 -->
+        <div class="card" style="padding:12px 16px;">
+            <form method="GET" action="{{ url_for('error_book') }}" class="filter-bar" style="margin-bottom:0;">
+                <select name="subject_id" onchange="this.form.submit()">
+                    <option value="">全部学科</option>
+                    {% for s in subjects %}
+                    <option value="{{ s.id }}" {{ 'selected' if current_subject == s.id }}>
+                        {{ s.icon }} {{ s.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if current_tag %}
+                <span class="tag active">{{ current_tag }}
+                    <a href="{{ url_for('error_book', subject_id=current_subject if current_subject else None) }}" style="text-decoration:none;color:inherit;">×</a>
+                </span>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- 标签快捷筛选 -->
+        {% if all_tags %}
+        <div style="margin-bottom:16px;display:flex;flex-wrap:wrap;gap:6px;">
+            <span style="font-size:13px;color:var(--text-secondary);line-height:30px;">知识点：</span>
+            {% for t in all_tags %}
+            <a href="{{ url_for('error_book', tag=t, subject_id=current_subject if current_subject else None) }}"
+               class="tag {{ 'active' if current_tag == t }}">{{ t }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- 错题列表 -->
+        {% if errors %}
+        <div class="card" style="padding:0;">
+            {% for e in errors %}
+            <div class="error-item {{ 'mastered' if e.mastered else '' }}">
+                <div class="error-header">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="subject-badge">{{ e.subject.icon }} {{ e.subject.name }}</span>
+                        <span style="font-size:12px;color:var(--text-secondary);">⭐ {{ e.difficulty }}</span>
+                        {% if e.mastered %}
+                            <span class="badge badge-success">已掌握</span>
+                        {% endif %}
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-outline btn-sm" onclick="toggleMastered({{ e.id }})">
+                            {{ '❌ 标为未掌握' if e.mastered else '✅ 标记掌握' }}
+                        </button>
+                        <form method="POST" action="{{ url_for('delete_error', error_id=e.id) }}" style="display:inline;"
+                            onsubmit="return confirm('确定删除这道错题吗？')">
+                            <button class="btn btn-danger btn-sm">删除</button>
+                        </form>
+                    </div>
+                </div>
+                <a href="{{ url_for('error_detail', error_id=e.id) }}" style="text-decoration:none;color:inherit;">
+                    <div class="question-preview">{{ e.question_text }}</div>
+                    <div class="error-meta">
+                        <span>答案：{{ e.correct_answer }}</span>
+                        {% if e.user_answer %}<span>你选了：{{ e.user_answer }}</span>{% endif %}
+                        <span>错{{ e.error_count }}次</span>
+                        {% if e.knowledge_tags %}
+                        <span>
+                            {% for tag in e.knowledge_tags.split(',')[:3] %}
+                            <span class="tag">{{ tag.strip() }}</span>
+                            {% endfor %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card" style="text-align:center;padding:60px;">
+            <div style="font-size:48px;margin-bottom:12px;">📝</div>
+            <p style="color:var(--text-secondary);">还没有错题记录</p>
+            <a href="{{ url_for('add_error') }}" class="btn btn-primary" style="margin-top:16px;">添加第一道错题</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+    function toggleMastered(id) {
+        fetch('/error-book/' + id + '/toggle-mastered', { method: 'POST' })
+            .then(r => r.json())
+            .then(data => { if (data.success) location.reload(); });
+    }
+    document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('open');
+    });
+    </script>
+</body>
+</html>

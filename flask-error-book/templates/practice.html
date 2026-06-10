@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开始刷题 - AI 智能错题本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container" style="max-width:600px;">
+        <div style="margin-bottom:24px;">
+            <a href="{{ url_for('dashboard') }}" style="color:var(--text-secondary);text-decoration:none;font-size:14px;">← 返回仪表盘</a>
+            <h1 style="font-size:24px;margin-top:8px;">🎯 开始刷题</h1>
+            <p style="color:var(--text-secondary);font-size:14px;margin-top:4px;">从错题本中随机抽取题目进行练习</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <form method="POST" action="{{ url_for('start_practice') }}">
+                <div class="form-group">
+                    <label>选择学科</label>
+                    <select name="subject_id">
+                        <option value="">全部学科</option>
+                        {% for s in subjects %}
+                        <option value="{{ s.id }}">{{ s.icon }} {{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>知识点标签 <span class="hint">（可选，只练习特定知识点的错题）</span></label>
+                    <select name="tag">
+                        <option value="">不限知识点</option>
+                        {% for t in all_tags %}
+                        <option value="{{ t }}">{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>练习题数</label>
+                    <div style="display:flex;gap:8px;">
+                        {% for n in [3, 5, 10, 15, 20] %}
+                        <label style="flex:1;text-align:center;padding:10px;border:1px solid var(--border);
+                            border-radius:8px;cursor:pointer;font-weight:400;">
+                            <input type="radio" name="count" value="{{ n }}" {{ 'checked' if n == 5 }} style="display:none;">
+                            <span class="count-option">{{ n }} 题</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top:16px;">
+                    🚀 开始刷题
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    // 题数选择样式
+    document.querySelectorAll('input[name="count"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('label:has(input[name="count"])').forEach(l => {
+                l.style.borderColor = 'var(--border)';
+                l.style.background = 'white';
+                l.style.color = 'var(--text)';
+            });
+            if (this.checked) {
+                this.parentElement.style.borderColor = 'var(--primary)';
+                this.parentElement.style.background = 'var(--primary-light)';
+                this.parentElement.style.color = 'var(--primary)';
+            }
+        });
+        // 初始状态
+        if (radio.checked) {
+            radio.parentElement.style.borderColor = 'var(--primary)';
+            radio.parentElement.style.background = 'var(--primary-light)';
+            radio.parentElement.style.color = 'var(--primary)';
+        }
+    });
+
+    document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('open');
+    });
+    </script>
+</body>
+</html>

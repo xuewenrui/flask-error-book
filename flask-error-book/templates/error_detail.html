@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错题详情 - AI 智能错题本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container" style="max-width:700px;">
+        <div style="margin-bottom:24px;">
+            <a href="{{ url_for('error_book') }}" style="color:var(--text-secondary);text-decoration:none;font-size:14px;">← 返回错题本</a>
+            <h1 style="font-size:24px;margin-top:8px;">📋 错题详情</h1>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <span class="badge badge-primary">{{ error.subject.icon }} {{ error.subject.name }}</span>
+                <div style="display:flex;gap:8px;">
+                    <span class="badge {{ 'badge-success' if error.mastered else 'badge-warning' }}">
+                        {{ '已掌握' if error.mastered else '待复习' }}
+                    </span>
+                    <span class="badge badge-warning">{{ '★' * error.difficulty }}{{ '☆' * (5 - error.difficulty) }}</span>
+                </div>
+            </div>
+
+            <h2 style="font-size:16px;margin-bottom:16px;line-height:1.8;">
+                {{ error.question_text }}
+            </h2>
+
+            {% if error.option_a or error.option_b or error.option_c or error.option_d %}
+            <div style="margin-bottom:20px;">
+                {% for key, text in [('A', error.option_a), ('B', error.option_b), ('C', error.option_c), ('D', error.option_d)] %}
+                {% if text %}
+                <div style="padding:10px 14px;margin:4px 0;border:1px solid var(--border);border-radius:8px;
+                    font-size:14px;
+                    {% if key == error.correct_answer %}background:#dcfce7;border-color:#86efac;{% endif %}
+                    {% if key == error.user_answer and key != error.correct_answer %}background:#fef2f2;border-color:#fca5a5;{% endif %}
+                ">
+                    <strong>{{ key }}.</strong> {{ text }}
+                    {% if key == error.correct_answer %}<span style="color:#15803d;"> ✅ 正确答案</span>{% endif %}
+                    {% if key == error.user_answer and key != error.correct_answer %}<span style="color:#ef4444;"> ❌ 你的选择</span>{% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if error.user_answer and error.user_answer != error.correct_answer %}
+            <div style="display:flex;gap:16px;margin-bottom:16px;padding:12px;background:#fef2f2;border-radius:8px;">
+                <div><span style="color:red;">❌ 你的答案：</span><strong>{{ error.user_answer }}</strong></div>
+                <div><span style="color:green;">✅ 正确答案：</span><strong>{{ error.correct_answer }}</strong></div>
+            </div>
+            {% endif %}
+
+            {% if error.explanation %}
+            <div style="padding:12px;background:var(--bg);border-radius:8px;margin-bottom:16px;">
+                <strong style="font-size:14px;">💡 解析：</strong>
+                <p style="font-size:14px;margin-top:8px;line-height:1.8;">{{ error.explanation }}</p>
+            </div>
+            {% endif %}
+
+            {% if error.knowledge_tags %}
+            <div style="margin-bottom:16px;">
+                <strong style="font-size:14px;">🏷️ 知识点标签：</strong>
+                <div style="margin-top:8px;">
+                    {% for tag in error.knowledge_tags.split(',') %}
+                    <span class="tag">{{ tag.strip() }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="font-size:13px;color:var(--text-secondary);">
+                录入时间：{{ error.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('open');
+    });
+    </script>
+</body>
+</html>

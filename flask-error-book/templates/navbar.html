@@ -1,0 +1,16 @@
+<nav class="navbar">
+    <a href="{{ url_for('dashboard') }}" class="brand">
+        <span class="icon">📝</span> AI错题本
+    </a>
+    <button class="menu-toggle">☰</button>
+    <div class="nav-links">
+        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">仪表盘</a>
+        <a href="{{ url_for('error_book') }}" class="{{ 'active' if request.endpoint == 'error_book' }}">错题本</a>
+        <a href="{{ url_for('practice') }}" class="{{ 'active' if request.endpoint == 'practice' }}">刷题</a>
+        <a href="{{ url_for('knowledge_map') }}" class="{{ 'active' if request.endpoint == 'knowledge_map' }}">知识图谱</a>
+    </div>
+    <div class="user-info">
+        <span class="username">👤 {{ current_user.username }}</span>
+        <a href="{{ url_for('logout') }}" class="btn-logout">退出</a>
+    </div>
+</nav>

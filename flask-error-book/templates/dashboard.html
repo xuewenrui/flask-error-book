@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习仪表盘 - AI 智能错题本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <div>
+                <h1 style="font-size:24px;">📊 学习仪表盘</h1>
+                <p style="color:var(--text-secondary);margin-top:4px;">欢迎回来，{{ current_user.username }}！</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <a href="{{ url_for('add_error') }}" class="btn btn-primary btn-sm">+ 添加错题</a>
+                <a href="{{ url_for('practice') }}" class="btn btn-outline btn-sm">🎯 开始刷题</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">📝</div>
+                <div class="number">{{ total_errors }}</div>
+                <div class="label">错题总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">✅</div>
+                <div class="number">{{ total_mastered }}</div>
+                <div class="label">已掌握</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">📈</div>
+                <div class="number">{{ mastery_rate }}%</div>
+                <div class="label">掌握率</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">🏷️</div>
+                <div class="number">{{ all_tags|length }}</div>
+                <div class="label">知识点标签</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">📋 最近错题</div>
+                    <div class="card-subtitle">最新录入的错题记录</div>
+                </div>
+                <a href="{{ url_for('error_book') }}" class="btn btn-outline btn-sm">查看全部</a>
+            </div>
+            {% if recent_errors %}
+                {% for e in recent_errors %}
+                <div class="error-item {{ 'mastered' if e.mastered else '' }}">
+                    <div class="error-header">
+                        <span class="subject-badge">{{ e.subject.icon }} {{ e.subject.name }}</span>
+                        {% if e.mastered %}
+                            <span class="badge badge-success">已掌握</span>
+                        {% endif %}
+                    </div>
+                    <div class="question-preview">{{ e.question_text }}</div>
+                    <div class="error-meta">
+                        <span>⭐ {{ e.difficulty }}</span>
+                        <span>错{{ e.error_count }}次</span>
+                        {% if e.knowledge_tags %}
+                        <span>
+                            {% for tag in e.knowledge_tags.split(',')[:3] %}
+                            <span class="tag">{{ tag.strip() }}</span>
+                            {% endfor %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align:center;padding:40px;color:var(--text-secondary);">
+                    <div style="font-size:40px;margin-bottom:12px;">📝</div>
+                    <p>还没有错题记录</p>
+                    <a href="{{ url_for('add_error') }}" class="btn btn-primary btn-sm" style="margin-top:12px;">添加第一道错题</a>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if subject_stats %}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📊 学科分布</div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;">
+                {% for s in subject_stats %}
+                <div style="flex:1;min-width:100px;text-align:center;">
+                    <div style="font-size:28px;">{{ s.icon }}</div>
+                    <div style="font-weight:700;font-size:16px;">{{ s.name }}</div>
+                    <div style="color:var(--text-secondary);font-size:13px;">{{ s.count }} 题</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+    // 移动端菜单切换
+    document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('open');
+    });
+    </script>
+</body>
+</html>

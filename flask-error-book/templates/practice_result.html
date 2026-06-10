@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刷题结果 - AI 智能错题本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container" style="max-width:700px;">
+        <div style="margin-bottom:24px;">
+            <a href="{{ url_for('practice') }}" style="color:var(--text-secondary);text-decoration:none;font-size:14px;">← 返回刷题</a>
+            <h1 style="font-size:24px;margin-top:8px;">📊 刷题结果</h1>
+        </div>
+
+        <!-- 分数卡片 -->
+        <div class="card" style="text-align:center;">
+            <div class="result-score">
+                <div class="big-number" style="color: {{ 'var(--success)' if score >= 60 else 'var(--danger)' }};">
+                    {{ score }}分
+                </div>
+                <div class="score-label">
+                    共 {{ total }} 题，正确 {{ correct_count }} 题
+                </div>
+            </div>
+            <div class="progress-bar" style="height:12px;border-radius:6px;margin:0 20px 16px;">
+                <div class="fill" style="width:{{ score }}%;background:{{ 'var(--success)' if score >= 60 else 'var(--danger)' }};"></div>
+            </div>
+            <div style="display:flex;justify-content:center;gap:40px;font-size:14px;">
+                <div><span style="color:var(--success);">✅ 正确</span> <strong>{{ correct_count }}</strong></div>
+                <div><span style="color:var(--danger);">❌ 错误</span> <strong>{{ total - correct_count }}</strong></div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div style="display:flex;gap:12px;margin-bottom:20px;">
+            <a href="{{ url_for('practice') }}" class="btn btn-outline" style="flex:1;">🔄 再来一次</a>
+            <a href="{{ url_for('add_error') }}" class="btn btn-primary" style="flex:1;">📝 添加错题</a>
+        </div>
+
+        <!-- 每题详情 -->
+        <h2 style="font-size:18px;margin-bottom:12px;">📋 答题详情</h2>
+        {% for r in results %}
+        <div class="result-item">
+            <div class="result-header">
+                <span class="result-status {{ 'correct' if r.is_correct else 'wrong' }}">
+                    {{ '✅ 正确' if r.is_correct else '❌ 错误' }}
+                </span>
+                <span style="font-size:13px;color:var(--text-secondary);">
+                    第 {{ loop.index }} 题 · {{ r.question.subject }}
+                </span>
+            </div>
+            <p style="font-size:14px;margin-bottom:8px;">{{ r.question.question_text }}</p>
+            <div style="font-size:13px;color:var(--text-secondary);">
+                {% if not r.is_correct %}
+                <div>你的答案：<span style="color:red;">{{ r.user_answer }}</span></div>
+                {% endif %}
+                <div>正确答案：<span style="color:green;">{{ r.correct_answer }}</span></div>
+            </div>
+            {% if r.question.knowledge_tags %}
+            <div style="margin-top:8px;">
+                {% for tag in r.question.knowledge_tags.split(',') %}
+                <span class="tag">{{ tag.strip() }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+    document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('open');
+    });
+    </script>
+</body>
+</html>
