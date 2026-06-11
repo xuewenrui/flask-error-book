@@ -16,8 +16,8 @@
                 <p style="color:var(--text-secondary);margin-top:4px;">欢迎回来，{{ current_user.username }}！</p>
             </div>
             <div style="display:flex;gap:8px;">
-                <a href="{{ url_for('add_error') }}" class="btn btn-primary btn-sm">+ 添加错题</a>
-                <a href="{{ url_for('practice') }}" class="btn btn-outline btn-sm">🎯 开始刷题</a>
+                <a href="{{ url_for('error_book.add_error') }}" class="btn btn-primary btn-sm">+ 添加错题</a>
+                <a href="{{ url_for('practice.practice') }}" class="btn btn-outline btn-sm">🎯 开始刷题</a>
             </div>
         </div>
 
@@ -58,7 +58,7 @@
                     <div class="card-title">📋 最近错题</div>
                     <div class="card-subtitle">最新录入的错题记录</div>
                 </div>
-                <a href="{{ url_for('error_book') }}" class="btn btn-outline btn-sm">查看全部</a>
+                <a href="{{ url_for('error_book.error_book') }}" class="btn btn-outline btn-sm">查看全部</a>
             </div>
             {% if recent_errors %}
                 {% for e in recent_errors %}
@@ -87,7 +87,7 @@
                 <div style="text-align:center;padding:40px;color:var(--text-secondary);">
                     <div style="font-size:40px;margin-bottom:12px;">📝</div>
                     <p>还没有错题记录</p>
-                    <a href="{{ url_for('add_error') }}" class="btn btn-primary btn-sm" style="margin-top:12px;">添加第一道错题</a>
+                    <a href="{{ url_for('error_book.add_error') }}" class="btn btn-primary btn-sm" style="margin-top:12px;">添加第一道错题</a>
                 </div>
             {% endif %}
         </div>

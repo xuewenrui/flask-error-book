@@ -11,7 +11,7 @@
 
     <div class="container" style="max-width:600px;">
         <div style="margin-bottom:24px;">
-            <a href="{{ url_for('dashboard') }}" style="color:var(--text-secondary);text-decoration:none;font-size:14px;">← 返回仪表盘</a>
+            <a href="{{ url_for('dashboard.dashboard') }}" style="color:var(--text-secondary);text-decoration:none;font-size:14px;">← 返回仪表盘</a>
             <h1 style="font-size:24px;margin-top:8px;">🎯 开始刷题</h1>
             <p style="color:var(--text-secondary);font-size:14px;margin-top:4px;">从错题本中随机抽取题目进行练习</p>
         </div>
@@ -25,7 +25,7 @@
         {% endwith %}
 
         <div class="card">
-            <form method="POST" action="{{ url_for('start_practice') }}">
+            <form method="POST" action="{{ url_for('practice.start_practice') }}">
                 <div class="form-group">
                     <label>选择学科</label>
                     <select name="subject_id">

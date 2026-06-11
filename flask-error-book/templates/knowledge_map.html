@@ -20,7 +20,7 @@
             <div class="card-title" style="margin-bottom:16px;">🏷️ 知识点标签分布</div>
             <div class="tag-cloud">
                 {% for ts in tag_stats %}
-                <a href="{{ url_for('error_book', tag=ts.name) }}" class="tag-item"
+                <a href="{{ url_for('error_book.error_book', tag=ts.name) }}" class="tag-item"
                     style="font-size:{{ (ts.count / tag_stats[0].count * 10 + 14) | int }}px; padding:{{ (ts.count / tag_stats[0].count * 6 + 6) | int }}px {{ (ts.count / tag_stats[0].count * 10 + 14) | int }}px;">
                     {{ ts.name }}
                     <span class="count">{{ ts.count }}</span>
@@ -33,7 +33,7 @@
             <div style="font-size:48px;margin-bottom:12px;">🗺️</div>
             <p style="color:var(--text-secondary);">还没有知识点数据</p>
             <p style="color:var(--text-secondary);font-size:13px;">添加错题时输入知识点标签，将自动汇聚到这里</p>
-            <a href="{{ url_for('add_error') }}" class="btn btn-primary" style="margin-top:16px;">添加错题</a>
+            <a href="{{ url_for('error_book.add_error') }}" class="btn btn-primary" style="margin-top:16px;">添加错题</a>
         </div>
         {% endif %}
     </div>

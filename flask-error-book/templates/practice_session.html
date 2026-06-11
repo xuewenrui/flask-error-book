@@ -56,7 +56,7 @@
                     <button class="btn btn-primary btn-sm" id="btnNext" onclick="nextQuestion()" style="display:none;">
                         下一题 →
                     </button>
-                    <a href="{{ url_for('practice_result') }}" class="btn btn-success btn-sm" id="btnResult" style="display:none;">
+                    <a href="{{ url_for('practice.practice_result') }}" class="btn btn-success btn-sm" id="btnResult" style="display:none;">
                         查看成绩
                     </a>
                 </div>
@@ -83,7 +83,7 @@
         });
 
         // 提交答案
-        fetch('{{ url_for("submit_answer") }}', {
+        fetch('{{ url_for("practice.submit_answer") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'answer=' + key
@@ -131,7 +131,7 @@
     }
 
     function nextQuestion() {
-        fetch('{{ url_for("next_question") }}', { method: 'POST' })
+        fetch('{{ url_for("practice.next_question") }}', { method: 'POST' })
             .then(() => location.reload());
     }
 

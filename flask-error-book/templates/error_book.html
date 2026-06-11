@@ -15,7 +15,7 @@
                 <h1 style="font-size:24px;">📖 我的错题本</h1>
                 <p style="color:var(--text-secondary);margin-top:4px;">共 {{ errors|length }} 道错题</p>
             </div>
-            <a href="{{ url_for('add_error') }}" class="btn btn-primary btn-sm">+ 添加错题</a>
+            <a href="{{ url_for('error_book.add_error') }}" class="btn btn-primary btn-sm">+ 添加错题</a>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -28,7 +28,7 @@
 
         <!-- 筛选栏 -->
         <div class="card" style="padding:12px 16px;">
-            <form method="GET" action="{{ url_for('error_book') }}" class="filter-bar" style="margin-bottom:0;">
+            <form method="GET" action="{{ url_for('error_book.error_book') }}" class="filter-bar" style="margin-bottom:0;">
                 <select name="subject_id" onchange="this.form.submit()">
                     <option value="">全部学科</option>
                     {% for s in subjects %}
@@ -50,7 +50,7 @@
         <div style="margin-bottom:16px;display:flex;flex-wrap:wrap;gap:6px;">
             <span style="font-size:13px;color:var(--text-secondary);line-height:30px;">知识点：</span>
             {% for t in all_tags %}
-            <a href="{{ url_for('error_book', tag=t, subject_id=current_subject if current_subject else None) }}"
+            <a href="{{ url_for('error_book.error_book', tag=t, subject_id=current_subject if current_subject else None) }}"
                class="tag {{ 'active' if current_tag == t }}">{{ t }}</a>
             {% endfor %}
         </div>
@@ -73,13 +73,13 @@
                         <button class="btn btn-outline btn-sm" onclick="toggleMastered({{ e.id }})">
                             {{ '❌ 标为未掌握' if e.mastered else '✅ 标记掌握' }}
                         </button>
-                        <form method="POST" action="{{ url_for('delete_error', error_id=e.id) }}" style="display:inline;"
+                        <form method="POST" action="{{ url_for('error_book.delete_error', error_id=e.id) }}" style="display:inline;"
                             onsubmit="return confirm('确定删除这道错题吗？')">
                             <button class="btn btn-danger btn-sm">删除</button>
                         </form>
                     </div>
                 </div>
-                <a href="{{ url_for('error_detail', error_id=e.id) }}" style="text-decoration:none;color:inherit;">
+                <a href="{{ url_for('error_book.error_detail', error_id=e.id) }}" style="text-decoration:none;color:inherit;">
                     <div class="question-preview">{{ e.question_text }}</div>
                     <div class="error-meta">
                         <span>答案：{{ e.correct_answer }}</span>
@@ -101,7 +101,7 @@
         <div class="card" style="text-align:center;padding:60px;">
             <div style="font-size:48px;margin-bottom:12px;">📝</div>
             <p style="color:var(--text-secondary);">还没有错题记录</p>
-            <a href="{{ url_for('add_error') }}" class="btn btn-primary" style="margin-top:16px;">添加第一道错题</a>
+            <a href="{{ url_for('error_book.add_error') }}" class="btn btn-primary" style="margin-top:16px;">添加第一道错题</a>
         </div>
         {% endif %}
     </div>
